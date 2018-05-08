@@ -3,10 +3,17 @@ from pyyamlconfig import load_config
 import socket
 import time
 import graphyte
+import sys
 
 hostname = socket.gethostname()
 config = load_config('config.yaml')
+if config is None:
+    sys.exit('Config is empty, please supply a whitelist')
+
 whitelist = config.get('whitelist')
+if whitelist is None or whitelist == []:
+    sys.exit('Whitelist is empty, exiting')
+
 carbon = config.get('carbon', {})
 graphyte.init(
     carbon.get('hostname', 'localhost'),
