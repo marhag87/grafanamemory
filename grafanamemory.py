@@ -24,17 +24,16 @@ graphyte.init(
 def get_memory():
     """Get a per process summary of all memory used by all processes in the whitelist"""
     procs = {}
-    for program in [x for x in psutil.process_iter() if x.name() in whitelist]:
-        if program.name() in procs:
-            procs[program.name()] += program.memory_info().rss
+    for program, rss in [(x.name(), x.memory_info().rss) for x in psutil.process_iter() if x.name() in whitelist]:
+        if program in procs:
+            procs[program] += rss
         else:
-            procs[program.name()] = program.memory_info().rss
+            procs[program] = rss
     return procs
 
 
 while True:
     """Send date to grafite every X seconds"""
-    memory = get_memory()
-    for name in memory.keys():
-        graphyte.send(name, memory[name])
+    for name, memory in get_memory().items():
+        graphyte.send(name, memory)
     time.sleep(5)
